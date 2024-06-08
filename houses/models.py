@@ -1,9 +1,8 @@
-from tabnanny import verbose
 from django.db import models
+from django.conf import settings
 
 
 class House(models.Model):
-
     """Model Definition for Houses"""
 
     name = models.CharField(max_length=140)
@@ -17,6 +16,11 @@ class House(models.Model):
         default=True,
         help_text="Does this house allow pets?",
     )
+
+    # Forenier Keys
+    owner = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    """Naming"""
 
     def __str__(self):
         return self.name
