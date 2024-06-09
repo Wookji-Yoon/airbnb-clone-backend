@@ -1,8 +1,9 @@
 from django.db import models
 from django.conf import settings
+from common.models import CommonModel
 
 
-class Room(models.Model):
+class Room(CommonModel):
     """Room Model Definition"""
 
     class KindChoices(models.TextChoices):
@@ -17,13 +18,15 @@ class Room(models.Model):
     toilets = models.PositiveIntegerField()
     description = models.TextField()
     address = models.CharField(max_length=250)
-    per_friendly = models.BooleanField(default=True)
-    kind = models.CharField(max_length=20, choices=KindChoices)
+    pet_friendly = models.BooleanField(default=True)
+    kind = models.CharField(max_length=20, choices=KindChoices.choices)
 
     owner = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
+    amenities = models.ManyToManyField("rooms.Amenity")
 
-class Amenity(models.Model):
+
+class Amenity(CommonModel):
     """Amenity Definition"""
 
     name = models.CharField(max_length=150)
