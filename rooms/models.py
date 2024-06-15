@@ -22,10 +22,20 @@ class Room(CommonModel):
     pet_friendly = models.BooleanField(default=True)
     kind = models.CharField(max_length=20, choices=KindChoices.choices)
 
-    owner = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    owner = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
 
     # manytomany라는 새로운 유형을 배웠습니다
     amenities = models.ManyToManyField("rooms.Amenity")
+
+    category = models.ForeignKey(
+        to="categories.Category",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+    )
 
     def __str__(self):
         return self.name
