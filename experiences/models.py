@@ -12,7 +12,11 @@ class Experience(CommonModel):
     country = models.CharField(max_length=50, default="대한민국")
     city = models.CharField(max_length=80, default="서울")
 
-    owner = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    owner = models.ForeignKey(
+        to=settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="experiences",
+    )
 
     price = models.PositiveIntegerField()
     address = models.CharField(max_length=250)
@@ -20,13 +24,17 @@ class Experience(CommonModel):
     end = models.TimeField()
     description = models.TextField()
 
-    perks = models.ManyToManyField("experiences.Perk")
+    perks = models.ManyToManyField(
+        to="experiences.Perk",
+        related_name="experiences",
+    )
 
     category = models.ForeignKey(
         to="categories.Category",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
+        related_name="experiences",
     )
 
     def __str__(self):

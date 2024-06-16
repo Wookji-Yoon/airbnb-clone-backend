@@ -11,11 +11,20 @@ class Wishlist(CommonModel):
     user = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
+        related_name="wishlists",
     )
 
-    rooms = models.ManyToManyField(to="rooms.Room", blank=True)
+    rooms = models.ManyToManyField(
+        to="rooms.Room",
+        blank=True,
+        related_name="wishlists",
+    )
 
-    experiences = models.ManyToManyField(to="experiences.Experience", blank=True)
+    experiences = models.ManyToManyField(
+        to="experiences.Experience",
+        blank=True,
+        related_name="wishlists",
+    )
 
     def __str__(self):
         return self.name

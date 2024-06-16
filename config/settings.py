@@ -43,6 +43,8 @@ CUSTOM_APPS = [
     "dms.apps.DmsConfig",
 ]
 
+DEV_APPS = ["django_seed"]
+
 SYSTEM_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -52,7 +54,7 @@ SYSTEM_APPS = [
     "django.contrib.staticfiles",
 ]
 
-INSTALLED_APPS = SYSTEM_APPS + CUSTOM_APPS
+INSTALLED_APPS = SYSTEM_APPS + CUSTOM_APPS + DEV_APPS
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",

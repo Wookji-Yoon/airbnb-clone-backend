@@ -25,20 +25,29 @@ class Room(CommonModel):
     owner = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
+        related_name="rooms",
     )
 
     # manytomany라는 새로운 유형을 배웠습니다
-    amenities = models.ManyToManyField("rooms.Amenity")
+    amenities = models.ManyToManyField(
+        to="rooms.Amenity",
+        related_name="rooms",
+    )
 
     category = models.ForeignKey(
         to="categories.Category",
         null=True,
         blank=True,
         on_delete=models.SET_NULL,
+        related_name="rooms",
     )
 
     def __str__(self):
         return self.name
+
+    # ORM을 나중에 API로 쓰고 싶으면, 모델의 method로 정의한다.
+    def total_amenities_model(self):
+        return self.amenities.count()
 
 
 class Amenity(CommonModel):

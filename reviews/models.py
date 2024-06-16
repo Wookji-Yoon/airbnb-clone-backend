@@ -13,18 +13,21 @@ class Review(CommonModel):
     user = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
         on_delete=models.DO_NOTHING,
+        related_name="reviews",
     )
     rooms = models.ForeignKey(
         to="rooms.Room",
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
+        related_name="reviews",
     )
     experiences = models.ForeignKey(
         to="experiences.Experience",
         on_delete=models.DO_NOTHING,
         null=True,
         blank=True,
+        related_name="reviews",
     )
     payload = models.TextField()
     rating = models.PositiveIntegerField(validators=[MaxValueValidator(5)])
