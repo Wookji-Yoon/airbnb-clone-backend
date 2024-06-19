@@ -5,8 +5,6 @@ from .models import Room, Amenity
 
 
 # 필수로 3가지 parameter를 넣어야 한다. 어떤 어드민인지, 어떤 유저가 요청하는지, 내가 선택한 요소들
-
-
 @admin.action(description="Set all prices to zero")
 def reset_prices(model_admin, request, rooms):
     for room in rooms.all():
@@ -27,7 +25,7 @@ class RoomAdmin(admin.ModelAdmin):
         "rating",
         "price",
     )
-    list_filter = ("name",)
+    list_filter = ("name", "owner__is_host")
     list_display_links = ("name",)
 
     # search fields에서 장고는 기본적으로 __contain을 연산자를 활용한다.
