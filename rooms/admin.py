@@ -11,6 +11,7 @@ class RoomAdmin(admin.ModelAdmin):
         "total_amenities_model",
         "total_amenities_admin",
         "owner",
+        "rating",
     )
     list_filter = ("name",)
     list_display_links = ("name",)

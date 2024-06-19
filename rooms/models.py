@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from common.models import CommonModel
+from django.db.models import Avg
 
 
 class Room(CommonModel):
@@ -48,6 +49,13 @@ class Room(CommonModel):
     # ORM을 나중에 API로 쓰고 싶으면, 모델의 method로 정의한다.
     def total_amenities_model(self):
         return self.amenities.count()
+
+    def rating(self):
+        average_rating = self.reviews.all().aggregate(Avg("rating"))["rating__avg"]
+        if average_rating is None:
+            return "No Reviews"
+        else:
+            return round(average_rating, 2)
 
 
 class Amenity(CommonModel):
