@@ -4,14 +4,28 @@ from .models import Room, Amenity
 # Register your models here.
 
 
+# 필수로 3가지 parameter를 넣어야 한다. 어떤 어드민인지, 어떤 유저가 요청하는지, 내가 선택한 요소들
+
+
+@admin.action(description="Set all prices to zero")
+def reset_prices(model_admin, request, rooms):
+    for room in rooms.all():
+        room.price = 0
+        room.save()
+
+
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
+
+    actions = (reset_prices,)
+
     list_display = (
         "name",
         "total_amenities_model",
         "total_amenities_admin",
         "owner",
         "rating",
+        "price",
     )
     list_filter = ("name",)
     list_display_links = ("name",)
