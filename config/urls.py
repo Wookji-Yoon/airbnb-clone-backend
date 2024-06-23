@@ -13,9 +13,16 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
+    path("rooms/", include("rooms.urls")),
 ]
+# 만약 config에 몰빵하고 싶으면
+# from rooms import views as room_views
+# path("rooms", room_views.say_hello),
+# 그러나 url은 점점 커지기 때문에 config/urls.py에 몰빵하기보다가, divide and conquer하는 게 바람직하다!
