@@ -53,6 +53,20 @@ Faker = ">=0.7.7"
 toposort = ">=1.5"
 
 [[package]]
+name = "djangorestframework"
+version = "3.15.2"
+description = "Web APIs for Django, made easy."
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "djangorestframework-3.15.2-py3-none-any.whl", hash = "sha256:2b8871b062ba1aefc2de01f773875441a961fefbf79f5eed1e32b2f096944b20"},
+    {file = "djangorestframework-3.15.2.tar.gz", hash = "sha256:36fe88cd2d6c6bec23dca9804bab2ba5517a8bb9d8f47ebc68981b56840107ad"},
+]
+
+[package.dependencies]
+django = ">=4.2"
+
+[[package]]
 name = "faker"
 version = "25.8.0"
 description = "Faker is a Python package that generates fake data for you."
@@ -246,4 +260,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.9"
-content-hash = "8fb500710c6b47f006e795c27129a22270e9b0997e70f9c5e72100b766d14adc"
+content-hash = "671805dcc3077758c1c62ec2490d5f8371119d517afbc975f3e1abfd9fa251d0"

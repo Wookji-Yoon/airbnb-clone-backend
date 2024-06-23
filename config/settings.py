@@ -43,7 +43,10 @@ CUSTOM_APPS = [
     "dms.apps.DmsConfig",
 ]
 
-DEV_APPS = ["django_seed"]
+DEV_APPS = [
+    "django_seed",
+    "rest_framework",
+]
 
 SYSTEM_APPS = [
     "django.contrib.admin",
