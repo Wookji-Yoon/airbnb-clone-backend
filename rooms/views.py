@@ -5,6 +5,7 @@ from rest_framework.status import HTTP_204_NO_CONTENT
 from .models import Amenity, Room
 from categories.models import Category
 from .serializers import AmenitySerializer, RoomDetailSerializer, RoomListSerializer
+from django.db import transaction
 
 
 class Amenities(APIView):
@@ -88,22 +89,19 @@ class Rooms(APIView):
                 except category.DoesNotExist:
                     raise ParseError("Cannot find Cateogry")
 
-                new_item = serializer.save(
-                    owner=request.user,
-                    category=category,
-                )
+                with transaction.atomic():
 
-                # Amenities는 manytomany필드이기 때문에 작동방식이 다르다
-                # amenities는 필수가 아니게 하자, 즉 없어도 parseError를 주진 말자
+                    new_item = serializer.save(
+                        owner=request.user,
+                        category=category,
+                    )
 
-                amenities = request.data.get("amenities")
-                for amenity_pk in amenities:
-                    try:
-                        amenity = Amenity.object.get(pk=amenity_pk)
-                    except:
-                        raise ParseError(f"Amenity with id {amenity_pk} does not exsit")
+                    amenities = request.data.get("amenities")
+                    for amenity_pk in amenities:
+                        amenity = Amenity.objects.get(pk=amenity_pk)
+                        new_item.amenities.add(amenity)
 
-                return Response(RoomDetailSerializer(new_item).data)
+                    return Response(RoomDetailSerializer(new_item).data)
             else:
                 return Response(serializer.errors)
         else:
