@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from common.models import CommonModel
 from django.db.models import Avg
+from django.core.validators import MinValueValidator
 
 
 class Room(CommonModel):
@@ -15,9 +16,9 @@ class Room(CommonModel):
     name = models.CharField(max_length=150, default="")
     country = models.CharField(max_length=50, default="대한민국")
     city = models.CharField(max_length=80, default="서울")
-    price = models.PositiveIntegerField()
-    rooms = models.PositiveIntegerField()
-    toilets = models.PositiveIntegerField()
+    price = models.PositiveIntegerField(validators=[MinValueValidator(0)])
+    rooms = models.PositiveIntegerField(validators=[MinValueValidator(0)])
+    toilets = models.PositiveIntegerField(validators=[MinValueValidator(0)])
     description = models.TextField()
     address = models.CharField(max_length=250)
     pet_friendly = models.BooleanField(default=True)

@@ -1,6 +1,11 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound, NotAuthenticated, ParseError
+from rest_framework.exceptions import (
+    NotFound,
+    NotAuthenticated,
+    ParseError,
+    PermissionDenied,
+)
 from rest_framework.status import HTTP_204_NO_CONTENT
 from .models import Amenity, Room
 from categories.models import Category
@@ -134,3 +139,68 @@ class RoomDetail(APIView):
         get_item = self.get_object(pk)
         serializer = RoomDetailSerializer(get_item)
         return Response(serializer.data)
+
+    def delete(self, request, pk):
+        get_item = self.get_object(pk)
+
+        # 로그인하지 않았으면 작동 안함
+        if not request.user.is_authenticated:
+            raise NotAuthenticated
+
+        # 자기가 방주인이 아니면 작동안함
+        if get_item.owner != request.user:
+            raise PermissionDenied
+
+        get_item.delete()
+        return Response(status=HTTP_204_NO_CONTENT)
+
+    def put(self, request, pk):
+        get_item = self.get_object(pk)
+
+        # 로그인하지 않았으면 작동 안함
+        if not request.user.is_authenticated:
+            raise NotAuthenticated
+
+        # 자기가 방주인이 아니면 작동안함
+        if get_item.owner != request.user:
+            raise PermissionDenied
+
+        serializer = RoomDetailSerializer(
+            instance=get_item,
+            data=request.data,
+            partial=True,
+        )
+
+        if serializer.is_valid():
+
+            # save_kwargs를 만들어 변동이 있을 때만 저장하도록 한다.
+            save_kwargs = {}
+
+            if "category" in request.data:
+                category_pk = request.data.get("category")
+                if category_pk is None:
+                    raise ParseError("Category pk is required")
+                try:
+                    category = Category.objects.get(pk=category_pk)
+                    if category.kind != Category.CategoryKindChoices.ROOMS:
+                        raise ParseError("Category should be 'Rooms'")
+                    save_kwargs["category"] = category
+                except Category.DoesNotExist:
+                    raise ParseError("Cannot find Category")
+
+            if "amenities" in request.data:
+                pk_list = request.data.get("amenities")
+                amenities = []
+                for amenity_pk in pk_list:
+                    try:
+                        amenity = Amenity.objects.get(pk=amenity_pk)
+                        amenities.append(amenity)
+                    except Amenity.DoesNotExist:
+                        raise ParseError("Cannot find Amenity")
+                save_kwargs["amenities"] = amenities
+
+            new_item = serializer.save(**save_kwargs)
+
+            return Response(RoomDetailSerializer(new_item).data)
+        else:
+            return Response(serializer.errors)

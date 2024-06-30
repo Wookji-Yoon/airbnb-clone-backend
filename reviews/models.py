@@ -12,19 +12,19 @@ class Review(CommonModel):
 
     user = models.ForeignKey(
         to=settings.AUTH_USER_MODEL,
-        on_delete=models.DO_NOTHING,
+        on_delete=models.CASCADE,
         related_name="reviews",
     )
     rooms = models.ForeignKey(
         to="rooms.Room",
-        on_delete=models.DO_NOTHING,
+        on_delete=models.CASCADE,
         null=True,
         blank=True,
         related_name="reviews",
     )
     experiences = models.ForeignKey(
         to="experiences.Experience",
-        on_delete=models.DO_NOTHING,
+        on_delete=models.CASCADE,
         null=True,
         blank=True,
         related_name="reviews",
