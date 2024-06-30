@@ -12,6 +12,8 @@ from categories.models import Category
 from .serializers import AmenitySerializer, RoomDetailSerializer, RoomListSerializer
 from django.db import transaction
 
+from reviews.serializers import ReviewSerializer
+
 
 class Amenities(APIView):
 
@@ -116,7 +118,7 @@ class Rooms(APIView):
                 # 이는 악의적/잘못된 사용자 데이터가 최종 데이터에 영향을 미치지 않도록 보장합니다.
                 # 그러나 API 문서의 명확성을 위해, 이 필드들을 serializer에서 read_only=True로 설정하는 것이 좋습니다.
                 new_item = serializer.save(
-                    owner=request.user,
+                    owner=owner,
                     category=category,
                     amenities=amenities,
                 )
@@ -209,3 +211,37 @@ class RoomDetail(APIView):
             return Response(RoomDetailSerializer(new_item).data)
         else:
             return Response(serializer.errors)
+
+
+class RoomReview(APIView):
+
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except:
+            raise NotFound
+
+    def get(self, request, pk):
+
+        # query는 따로 설정안해도 컨트롤할 수 있다.
+        page = request.query_params.get("page", default=1)
+        try:
+            page = int(page)
+        except ValueError:
+            page = 1
+
+        pagination_size = 5
+        start = (page - 1) * pagination_size
+        end = page * pagination_size
+
+        get_item = self.get_object(pk=pk)
+
+        # django가 자르는 게 아니라 database에 요청할 때부터 잘라서 가기 때문에 최적화가 굉장히 좋아진다
+        reviews = get_item.reviews.all()[start:end]
+
+        serializer = ReviewSerializer(
+            reviews,
+            many=True,
+        )
+
+        return Response(serializer.data)

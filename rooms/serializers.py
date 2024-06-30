@@ -15,7 +15,7 @@ class AmenitySerializer(ModelSerializer):
 class RoomDetailSerializer(ModelSerializer):
 
     # 관계형 데이터에 다른 시리얼라이저를 설정해서 depth=1에서 어떻게 보일지  설정할 수 있다.
-    # read_only=True를 해서 User가 Post할 떄는 입력하지 않아도 되게 할 수 있다. 또는
+    # read_only=True를 해서 User가 Post할 떄는 입력하지 않아도 되게 할 수 있다.
     owner = UserTinySerializer(read_only=True)
     amenities = AmenitySerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
@@ -56,7 +56,16 @@ class RoomListSerializer(ModelSerializer):
 
     class Meta:
         model = Room
-        fields = ("pk", "name", "country", "city", "price", "rating", "is_owner")
+        fields = (
+            "pk",
+            "name",
+            "country",
+            "city",
+            "price",
+            "rating",
+            "is_owner",
+            "reviews",
+        )
 
     def get_rating(self, room):
         # 이 함수는 RoomDetailSerializer의 rating을 위한 함수이다.
