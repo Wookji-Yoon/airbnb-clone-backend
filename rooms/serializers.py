@@ -22,6 +22,7 @@ class RoomDetailSerializer(ModelSerializer):
 
     # MethodField를 사용해서, model에 없는 field를 만들 수 있다.
     rating = SerializerMethodField()
+    is_owner = SerializerMethodField()
 
     class Meta:
         model = Room
@@ -38,21 +39,24 @@ class RoomDetailSerializer(ModelSerializer):
 
         return room.rating()
 
+        # context를 활용하면 serializer를 사용하는 view에서 context에 데이터를 담아 보내서 동적 field를 만들 수 있다.
+
+    def get_is_owner(self, room):
+        request = self.context["request"]
+        if room.owner == request.user:
+            return True
+        else:
+            return False
+
 
 class RoomListSerializer(ModelSerializer):
 
     rating = SerializerMethodField()
+    is_owner = SerializerMethodField()
 
     class Meta:
         model = Room
-        fields = (
-            "pk",
-            "name",
-            "country",
-            "city",
-            "price",
-            "rating",
-        )
+        fields = ("pk", "name", "country", "city", "price", "rating", "is_owner")
 
     def get_rating(self, room):
         # 이 함수는 RoomDetailSerializer의 rating을 위한 함수이다.
@@ -60,3 +64,10 @@ class RoomListSerializer(ModelSerializer):
         # 두번째 object로는 이 method를 호출한 object가 들어간다.
 
         return room.rating()
+
+    def get_is_owner(self, room):
+        request = self.context["request"]
+        if room.owner == request.user:
+            return True
+        else:
+            return False

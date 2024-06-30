@@ -73,6 +73,7 @@ class Rooms(APIView):
         serializer = RoomListSerializer(
             all_items,
             many=True,
+            context={"request": request},
         )
         return Response(serializer.data)
 
@@ -137,7 +138,10 @@ class RoomDetail(APIView):
 
     def get(self, request, pk):
         get_item = self.get_object(pk)
-        serializer = RoomDetailSerializer(get_item)
+        serializer = RoomDetailSerializer(
+            get_item,
+            context={"request": request},
+        )
         return Response(serializer.data)
 
     def delete(self, request, pk):
@@ -169,6 +173,7 @@ class RoomDetail(APIView):
             instance=get_item,
             data=request.data,
             partial=True,
+            context={"request": request},
         )
 
         if serializer.is_valid():
