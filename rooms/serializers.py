@@ -1,4 +1,4 @@
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import SerializerMethodField, ModelSerializer
 from .models import Amenity, Room
 
 from users.serializers import UserTinySerializer
@@ -18,7 +18,10 @@ class RoomDetailSerializer(ModelSerializer):
     # read_only=True를 해서 User가 Post할 떄는 입력하지 않아도 되게 할 수 있다. 또는
     owner = UserTinySerializer(read_only=True)
     amenities = AmenitySerializer(many=True, read_only=True)
-    categories = CategorySerializer(read_only=True)
+    category = CategorySerializer(read_only=True)
+
+    # MethodField를 사용해서, model에 없는 field를 만들 수 있다.
+    rating = SerializerMethodField()
 
     class Meta:
         model = Room
@@ -28,8 +31,17 @@ class RoomDetailSerializer(ModelSerializer):
         # 그리고 커스터마이징도 불가능하지!
         depth = 1
 
+    def get_rating(self, room):
+        # 이 함수는 RoomDetailSerializer의 rating을 위한 함수이다.
+        # 반드시 field 앞에 get_를 붙여야 한다.
+        # 두번째 object로는 이 method를 호출한 object가 들어간다.
+
+        return room.rating()
+
 
 class RoomListSerializer(ModelSerializer):
+
+    rating = SerializerMethodField()
 
     class Meta:
         model = Room
@@ -39,4 +51,12 @@ class RoomListSerializer(ModelSerializer):
             "country",
             "city",
             "price",
+            "rating",
         )
+
+    def get_rating(self, room):
+        # 이 함수는 RoomDetailSerializer의 rating을 위한 함수이다.
+        # 반드시 field 앞에 get_를 붙여야 한다.
+        # 두번째 object로는 이 method를 호출한 object가 들어간다.
+
+        return room.rating()

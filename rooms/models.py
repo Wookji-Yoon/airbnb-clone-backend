@@ -54,7 +54,7 @@ class Room(CommonModel):
     def rating(self):
         average_rating = self.reviews.all().aggregate(Avg("rating"))["rating__avg"]
         if average_rating is None:
-            return "No Reviews"
+            return 0
         else:
             return round(average_rating, 2)
 
