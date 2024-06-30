@@ -13,6 +13,7 @@ from .serializers import AmenitySerializer, RoomDetailSerializer, RoomListSerial
 from django.db import transaction
 from medias.serializers import PhotoSerializer
 from reviews.serializers import ReviewSerializer
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 
 class Amenities(APIView):
@@ -69,6 +70,9 @@ class AmenityDetail(APIView):
 
 
 class Rooms(APIView):
+
+    # get일때는 괜찮고, put, post, delete일 때만 authenticated를 확인한다.
+    permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request):
         all_items = Room.objects.all()
