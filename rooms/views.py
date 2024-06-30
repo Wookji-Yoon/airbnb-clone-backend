@@ -213,7 +213,7 @@ class RoomDetail(APIView):
             return Response(serializer.errors)
 
 
-class RoomReview(APIView):
+class RoomReviews(APIView):
 
     def get_object(self, pk):
         try:
@@ -245,3 +245,49 @@ class RoomReview(APIView):
         )
 
         return Response(serializer.data)
+
+
+class RoomAmenities(APIView):
+
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except:
+            raise NotFound
+
+    def get(self, request, pk):
+
+        # query는 따로 설정안해도 컨트롤할 수 있다.
+        page = request.query_params.get("page", default=1)
+        try:
+            page = int(page)
+        except ValueError:
+            page = 1
+
+        pagination_size = 5
+        start = (page - 1) * pagination_size
+        end = page * pagination_size
+
+        get_item = self.get_object(pk=pk)
+
+        # django가 자르는 게 아니라 database에 요청할 때부터 잘라서 가기 때문에 최적화가 굉장히 좋아진다
+        amenities = get_item.amenities.all()[start:end]
+
+        serializer = AmenitySerializer(
+            amenities,
+            many=True,
+        )
+
+        return Response(serializer.data)
+
+
+class RoomPhotos(APIView):
+
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except:
+            raise NotFound
+
+    def post(self, request, pk):
+        pass
