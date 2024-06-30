@@ -1,8 +1,9 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.exceptions import NotFound, NotAuthenticated
+from rest_framework.exceptions import NotFound, NotAuthenticated, ParseError
 from rest_framework.status import HTTP_204_NO_CONTENT
 from .models import Amenity, Room
+from categories.models import Category
 from .serializers import AmenitySerializer, RoomDetailSerializer, RoomListSerializer
 
 
@@ -73,9 +74,34 @@ class Rooms(APIView):
         if request.user.is_authenticated:
             serializer = RoomDetailSerializer(data=request.data)
             if serializer.is_valid():
-                # 만약 valid를 통과했다 하더라도, save단계에서 nested field는 serializer을 통해 default로 생성하지 못한다. 그렇다면 관계를 serializer에 explicit하거나 read_only=True를 해야 한다.
-                #
-                new_item = serializer.save()
+                # nested field에 해당하는 애들을 serializer로 valid할 수는 있다. 그런데, 이것을 곧바로 save한다고 알맞게 data를 생성하지 못한다.
+                # 따라서 두 가지 조치가 필요하다.
+                # 1. save단계에서 유저가 보낸 data가 곧바로 넘어가지 못하도록 serializer에 read_only = True를 걸어야 한다.
+                # 2. save의 parameter로 관계를  explicit해야 한다.
+                category_pk = request.data.get("category")
+                if category_pk is None:
+                    raise ParseError("Category pk is required")
+                try:
+                    category = Category.objects.get(pk=category_pk)
+                    if category.kind != Category.CategoryKindChoices.ROOMS:
+                        raise ParseError("Cateogry shoud be 'rooms'")
+                except category.DoesNotExist:
+                    raise ParseError("Cannot find Cateogry")
+
+                new_item = serializer.save(
+                    owner=request.user,
+                    category=category,
+                )
+
+                # Amenities는 manytomany필드이기 때문에 작동방식이 다르다
+                # amenities는 필수가 아니게 하자, 즉 없어도 parseError를 주진 말자
+
+                amenities = request.data.get("amenities")
+                for amenity_pk in amenities:
+                    try:
+                        amenity = Amenity.object.get(pk=amenity_pk)
+                    except:
+                        raise ParseError(f"Amenity with id {amenity_pk} does not exsit")
 
                 return Response(RoomDetailSerializer(new_item).data)
             else:
