@@ -11,7 +11,7 @@ from .models import Amenity, Room
 from categories.models import Category
 from .serializers import AmenitySerializer, RoomDetailSerializer, RoomListSerializer
 from django.db import transaction
-
+from medias.serializers import PhotoSerializer
 from reviews.serializers import ReviewSerializer
 
 
@@ -290,4 +290,20 @@ class RoomPhotos(APIView):
             raise NotFound
 
     def post(self, request, pk):
-        pass
+        get_item = self.get_object(pk)
+
+        # 로그인하지 않았으면 작동 안함
+        if not request.user.is_authenticated:
+            raise NotAuthenticated
+
+        # 자기가 방주인이 아니면 작동안함
+        if get_item.owner != request.user:
+            raise PermissionDenied
+
+        serializer = PhotoSerializer(data=request.data)
+
+        if serializer.is_valid():
+            photo = serializer.save(room=get_item)
+            return Response(PhotoSerializer(photo).data)
+        else:
+            return Response(serializer.errors)
