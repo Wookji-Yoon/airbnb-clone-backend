@@ -3,6 +3,7 @@ from .models import Amenity, Room
 
 from users.serializers import UserTinySerializer
 from categories.serializers import CategorySerializer
+from medias.serializers import PhotoSerializer
 
 
 class AmenitySerializer(ModelSerializer):
@@ -19,6 +20,7 @@ class RoomDetailSerializer(ModelSerializer):
     owner = UserTinySerializer(read_only=True)
     amenities = AmenitySerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
+    photos = PhotoSerializer(many=True, read_only=True)
 
     # MethodField를 사용해서, model에 없는 field를 만들 수 있다.
     rating = SerializerMethodField()
@@ -53,6 +55,7 @@ class RoomListSerializer(ModelSerializer):
 
     rating = SerializerMethodField()
     is_owner = SerializerMethodField()
+    photos = PhotoSerializer(many=True, read_only=True)
 
     class Meta:
         model = Room
@@ -65,6 +68,7 @@ class RoomListSerializer(ModelSerializer):
             "rating",
             "is_owner",
             "reviews",
+            "photos",
         )
 
     def get_rating(self, room):
