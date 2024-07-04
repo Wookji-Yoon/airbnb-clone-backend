@@ -1,3 +1,4 @@
+from django.utils import timezone
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import (
@@ -7,13 +8,14 @@ from rest_framework.exceptions import (
     PermissionDenied,
 )
 from rest_framework.status import HTTP_204_NO_CONTENT
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from .models import Amenity, Room
-from categories.models import Category
 from .serializers import AmenitySerializer, RoomDetailSerializer, RoomListSerializer
-from django.db import transaction
+from categories.models import Category
 from medias.serializers import PhotoSerializer
 from reviews.serializers import ReviewSerializer
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from bookings.models import Booking
+from bookings.serializers import PublicBookingSerializer, CreateBookingSerializer
 
 
 class Amenities(APIView):
@@ -324,5 +326,47 @@ class RoomPhotos(APIView):
         if serializer.is_valid():
             photo = serializer.save(room=get_item)
             return Response(PhotoSerializer(photo).data)
+        else:
+            return Response(serializer.errors)
+
+
+class RoomBookings(APIView):
+
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def get_object(self, pk):
+        try:
+            return Room.objects.get(pk=pk)
+        except:
+            raise NotFound
+
+    def get(self, request, pk):
+        room = self.get_object(pk=pk)
+        now = timezone.localtime(timezone.now()).date()
+        bookings = Booking.objects.filter(
+            room=room,
+            kind=Booking.KindChoices.ROOM,
+            room_check_in_date__gt=now,
+        )
+        # bookings= Booking.objects.filter(room__pk=pk)
+        # 이렇게 하면 db를 두번 조회할 필요없이, 한번에 찾을 수 있다는 장점이 있다.
+        # 다만, queryset이 빈 것이 반납되었을 때, room이 없는 것인지, 해당 room에 대한 부킹이 없는 것인지 파악할 수 없다.
+
+        serializers = PublicBookingSerializer(bookings, many=True)
+        return Response(serializers.data)
+
+    def post(self, request, pk):
+        room = self.get_object(pk=pk)
+        serializer = CreateBookingSerializer(
+            data=request.data,
+            context={"room": room},
+        )
+        if serializer.is_valid():
+            booking = serializer.save(
+                room=room,
+                user=request.user,
+                kind=Booking.KindChoices.ROOM,
+            )
+            return Response(PublicBookingSerializer(booking).data)
         else:
             return Response(serializer.errors)

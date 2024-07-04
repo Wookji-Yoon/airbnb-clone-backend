@@ -1,6 +1,6 @@
 from rest_framework.serializers import SerializerMethodField, ModelSerializer
 from .models import Amenity, Room
-
+from wishlists.models import Wishlist
 from users.serializers import UserTinySerializer
 from categories.serializers import CategorySerializer
 from medias.serializers import PhotoSerializer
@@ -55,6 +55,7 @@ class RoomListSerializer(ModelSerializer):
 
     rating = SerializerMethodField()
     is_owner = SerializerMethodField()
+    is_liked = SerializerMethodField()
     photos = PhotoSerializer(many=True, read_only=True)
 
     class Meta:
@@ -67,6 +68,7 @@ class RoomListSerializer(ModelSerializer):
             "price",
             "rating",
             "is_owner",
+            "is_liked",
             "reviews",
             "photos",
         )
@@ -84,3 +86,10 @@ class RoomListSerializer(ModelSerializer):
             return True
         else:
             return False
+
+    def get_is_liked(self, room):
+        request = self.context["request"]
+        return Wishlist.objects.filter(
+            user=request.user,
+            rooms__pk=room.pk,
+        ).exists()
