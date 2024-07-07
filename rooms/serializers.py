@@ -1,7 +1,7 @@
 from rest_framework.serializers import SerializerMethodField, ModelSerializer
 from .models import Amenity, Room
 from wishlists.models import Wishlist
-from users.serializers import UserTinySerializer
+from users.serializers import TinyUserSerializer
 from categories.serializers import CategorySerializer
 from medias.serializers import PhotoSerializer
 
@@ -17,7 +17,7 @@ class RoomDetailSerializer(ModelSerializer):
 
     # 관계형 데이터에 다른 시리얼라이저를 설정해서 depth=1에서 어떻게 보일지  설정할 수 있다.
     # read_only=True를 해서 User가 Post할 떄는 입력하지 않아도 되게 할 수 있다.
-    owner = UserTinySerializer(read_only=True)
+    owner = TinyUserSerializer(read_only=True)
     amenities = AmenitySerializer(many=True, read_only=True)
     category = CategorySerializer(read_only=True)
     photos = PhotoSerializer(many=True, read_only=True)

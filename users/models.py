@@ -38,4 +38,4 @@ class User(AbstractUser):
 
     # blank=true라고 하면 validate에서 필수가 아니게 한다. (데이터베이스에는 빈 문자열 ""이 저장된다.)
     # Null=True라고 하면 데이터베이스 필드에서 null값이 되게 된다.
-    avatar = models.ImageField(blank=True)
+    avatar = models.URLField(blank=True)

@@ -2,7 +2,7 @@ from rest_framework.serializers import ModelSerializer
 from .models import User
 
 
-class UserTinySerializer(ModelSerializer):
+class TinyUserSerializer(ModelSerializer):
 
     class Meta:
         model = User
@@ -10,4 +10,19 @@ class UserTinySerializer(ModelSerializer):
             "name",
             "avatar",
             "username",
+        )
+
+
+class PrivateUserSerializer(ModelSerializer):
+
+    class Meta:
+        model = User
+        exclude = (
+            "password",
+            "is_superuser",
+            "id",
+            "is_staff",
+            "is_active",
+            "groups",
+            "user_permissions",
         )
