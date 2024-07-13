@@ -1,4 +1,5 @@
 from django.contrib import auth
+from django.conf import settings
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
@@ -6,6 +7,8 @@ from rest_framework import permissions
 from rest_framework import exceptions
 from .serializers import PrivateUserSerializer, TinyUserSerializer
 from .models import User
+
+import jwt
 
 
 class Me(APIView):
@@ -108,3 +111,24 @@ class LogOut(APIView):
     def post(self, request):
         auth.logout(request)
         return Response({"ok": "Bye"})
+
+
+class JWTLogIn(APIView):
+
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+        if not username or not password:
+            raise exceptions.ParseError("ParseError")
+
+        user = auth.authenticate(request, username=username, password=password)
+
+        if user:
+            token = jwt.encode(
+                {"pk": user.pk},
+                settings.SECRET_KEY,
+                algorithm="HS256",
+            )
+            return Response({"token": token})
+        else:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
